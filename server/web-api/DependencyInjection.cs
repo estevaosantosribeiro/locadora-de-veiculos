@@ -1,6 +1,9 @@
 ﻿using LocadoraDeVeiculos.Dominio.Compartilhado;
 using LocadoraDeVeiculos.Infraestrutura.Orm.Compartilhado;
+using LocadoraDeVeiculos.WebApi.Filters;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using System.Text.Json.Serialization;
 
 namespace LocadoraDeVeiculos.WebApi;
 
@@ -27,5 +30,30 @@ public static class DependencyInjection
                 dbOptions.EnableRetryOnFailure(3);
             });
         });
+    }
+
+    public static void ConfigureControllersWithFilters(this IServiceCollection services)
+    {
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<ResponseWrapperFilter>();
+        }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    }
+
+    public static void ConfigureSerilog(this IServiceCollection services, ILoggingBuilder logging, IConfiguration config)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .WriteTo.Console()
+            .WriteTo.NewRelicLogs(
+                endpointUrl: "https://log-api.newrelic.com/log/v1",
+                applicationName: "locadora-de-veiculos-api",
+                licenseKey: config["NEWRELIC_LICENSE_KEY"]
+            )
+            .CreateLogger();
+
+        logging.ClearProviders();
+
+        services.AddLogging(builder => builder.AddSerilog(dispose: true));
     }
 }
