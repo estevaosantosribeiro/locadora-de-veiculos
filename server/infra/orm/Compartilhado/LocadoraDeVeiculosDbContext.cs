@@ -1,10 +1,13 @@
 ﻿using LocadoraDeVeiculos.Dominio.Compartilhado;
+using LocadoraDeVeiculos.Dominio.ModuloAutenticacao;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace LocadoraDeVeiculos.Infraestrutura.Orm.Compartilhado;
 
-public class LocadoraDeVeiculosDbContext(DbContextOptions options)
-    : DbContext(options), IContextoPersistencia
+public class LocadoraDeVeiculosDbContext(DbContextOptions options, ITenantProvider? tenantProvider = null)
+    : IdentityDbContext<Usuario, Cargo, Guid>(options), IContextoPersistencia
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

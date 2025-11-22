@@ -1,7 +1,9 @@
-﻿using LocadoraDeVeiculos.Dominio.Compartilhado;
+﻿using LocadoraDeVeiculos.Aplicacao.ModuloAutenticacao.Commands.Registrar;
+using LocadoraDeVeiculos.Dominio.Compartilhado;
 using LocadoraDeVeiculos.Infraestrutura.Orm.Compartilhado;
 using LocadoraDeVeiculos.WebApi.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -55,5 +57,105 @@ public static class DependencyInjection
         logging.ClearProviders();
 
         services.AddLogging(builder => builder.AddSerilog(dispose: true));
+    }
+
+    public static void ConfigureOpenApiAuthHeaders(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "LocadoraDeVeiculos API", Version = "v1" });
+
+            options.MapType<TimeSpan>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Format = "time-span",
+                Example = new Microsoft.OpenApi.Any.OpenApiString("00:00:00")
+            });
+
+            options.MapType<Guid>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Format = "guid",
+                Example = new Microsoft.OpenApi.Any.OpenApiString("00000000-0000-0000-0000-000000000000")
+            });
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Name = "Authorization",
+                Description = "Informe o token JWT no padrão {Bearer token}",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    []
+                }
+            });
+        });
+    }
+
+    public static void ConfigureCorsPolicy(
+        this IServiceCollection services,
+        IWebHostEnvironment environment,
+        IConfiguration configuration
+    )
+    {
+        services.AddCors(options =>
+        {
+            if (environment.IsDevelopment())
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            }
+            else
+            {
+                var origensPermitidasString = configuration["CORS_ALLOWED_ORIGINS"];
+
+                if (string.IsNullOrWhiteSpace(origensPermitidasString))
+                    throw new Exception("A variável de ambiente \"CORS_ALLOWED_ORIGINS\" não foi fornecida.");
+
+                var origensPermitidas = origensPermitidasString
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(x => x.TrimEnd('/'))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .WithOrigins(origensPermitidas)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            }
+        });
+    }
+
+    public static void ConfigureMediatR(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblyContaining<RegistrarUsuarioRequest>();
+        });
     }
 }

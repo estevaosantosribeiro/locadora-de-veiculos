@@ -1,4 +1,7 @@
 
+using LocadoraDeVeiculos.WebApi.Config;
+using Serilog;
+
 namespace LocadoraDeVeiculos.WebApi
 {
     public class Program
@@ -7,31 +10,49 @@ namespace LocadoraDeVeiculos.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.ConfigureSerilog(builder.Logging, builder.Configuration);
+
             builder.Services.ConfigureDbContext(builder.Configuration, builder.Environment);
 
-            // Add services to the container.
+            builder.Services.ConfigureMediatR();
 
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.ConfigureIdentityProviders();
+            builder.Services.ConfigureJwtAuthentication(builder.Configuration);
+
+            builder.Services.ConfigureControllersWithFilters();
+
+            builder.Services.ConfigureOpenApiAuthHeaders();
+
+            builder.Services.ConfigureCorsPolicy(builder.Environment, builder.Configuration);
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseGlobalExceptionHandler();
+
+            app.AutoMigrateDatabase();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors();
 
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
 
-            app.Run();
+            try
+            {
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal("Ocorreu um erro fatal durante a execução da aplicação: {@Excecao}", ex);
+            }
         }
     }
 }
