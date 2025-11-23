@@ -7,8 +7,5 @@ public record EditarFuncionarioRequest(
     Guid Id,
     string Nome, 
     decimal Salario, 
-    DateTime DataAdmissao, 
-    string UserName, 
-    string Email, 
-    string Password
+    DateTime DataAdmissao
 ) : IRequest<Result<EditarFuncionarioResponse>>;

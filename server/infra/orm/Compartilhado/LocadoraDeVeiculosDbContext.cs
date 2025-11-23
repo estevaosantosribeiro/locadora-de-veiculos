@@ -13,10 +13,10 @@ public class LocadoraDeVeiculosDbContext(DbContextOptions options, ITenantProvid
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        if (tenantProvider is not null)
-        {
-            modelBuilder.Entity<Funcionario>().HasQueryFilter(m => m.UsuarioId == tenantProvider.UsuarioId);
-        }
+        //if (tenantProvider is not null)
+        //{
+        //    modelBuilder.Entity<Funcionario>().HasQueryFilter(m => m.UsuarioId == tenantProvider.UsuarioId);
+        //}
 
         modelBuilder.ApplyConfiguration(new MapeadorFuncionarioEmOrm());
 

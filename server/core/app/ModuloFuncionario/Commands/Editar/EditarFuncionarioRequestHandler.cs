@@ -18,6 +18,7 @@ public class EditarFuncionarioRequestHandler(
         CancellationToken cancellationToken
     )
     {
+
         var funcionarioSelecionado = await repositorioFuncionario.SelecionarPorIdAsync(request.Id);
 
         if (funcionarioSelecionado == null) return Result.Fail(ErrorResults.NotFoundError(request.Id));
