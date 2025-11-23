@@ -14,6 +14,8 @@ namespace LocadoraDeVeiculos.WebApi
 
             builder.Services.ConfigureDbContext(builder.Configuration, builder.Environment);
 
+            builder.Services.ConfigureRepositories();
+            builder.Services.ConfigureFluentValidation();
             builder.Services.ConfigureMediatR();
 
             builder.Services.ConfigureIdentityProviders();

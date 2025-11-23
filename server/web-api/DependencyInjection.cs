@@ -1,10 +1,13 @@
 ﻿using LocadoraDeVeiculos.Aplicacao.ModuloAutenticacao.Commands.Registrar;
 using LocadoraDeVeiculos.Dominio.Compartilhado;
+using LocadoraDeVeiculos.Dominio.ModuloFuncionario;
 using LocadoraDeVeiculos.Infraestrutura.Orm.Compartilhado;
+using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloFuncionario;
 using LocadoraDeVeiculos.WebApi.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using FluentValidation;
 using System.Text.Json.Serialization;
 
 namespace LocadoraDeVeiculos.WebApi;
@@ -157,5 +160,15 @@ public static class DependencyInjection
         {
             cfg.RegisterServicesFromAssemblyContaining<RegistrarUsuarioRequest>();
         });
+    }
+
+    public static void ConfigureRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IRepositorioFuncionario, RepositorioFuncionarioEmOrm>();
+    }
+
+    public static void ConfigureFluentValidation(this IServiceCollection services)
+    {
+        services.AddValidatorsFromAssemblyContaining<ValidadorFuncionario>();
     }
 }
