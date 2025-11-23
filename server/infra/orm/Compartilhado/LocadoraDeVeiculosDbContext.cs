@@ -1,5 +1,7 @@
 ﻿using LocadoraDeVeiculos.Dominio.Compartilhado;
 using LocadoraDeVeiculos.Dominio.ModuloAutenticacao;
+using LocadoraDeVeiculos.Dominio.ModuloFuncionario;
+using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloFuncionario;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -11,6 +13,13 @@ public class LocadoraDeVeiculosDbContext(DbContextOptions options, ITenantProvid
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        if (tenantProvider is not null)
+        {
+            modelBuilder.Entity<Funcionario>().HasQueryFilter(m => m.UsuarioId == tenantProvider.UsuarioId);
+        }
+
+        modelBuilder.ApplyConfiguration(new MapeadorFuncionarioEmOrm());
+
         base.OnModelCreating(modelBuilder);
     }
 

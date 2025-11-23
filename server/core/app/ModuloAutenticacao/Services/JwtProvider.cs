@@ -5,17 +5,21 @@ using LocadoraDeVeiculos.Dominio.ModuloAutenticacao;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace LocadoraDeVeiculos.Aplicacao.ModuloAutenticacao.Services;
 
 public class JwtProvider : ITokenProvider
 {
+    private readonly UserManager<Usuario> userManager;
     private readonly string? chaveJwt;
     private readonly DateTime dataExpiracaoJwt;
     private string? audienciaValida;
 
-    public JwtProvider(IConfiguration config)
+    public JwtProvider(IConfiguration config, UserManager<Usuario> userManager)
     {
+        this.userManager = userManager;
+
         chaveJwt = config["JWT_GENERATION_KEY"];
 
         if (string.IsNullOrEmpty(chaveJwt))
@@ -29,7 +33,7 @@ public class JwtProvider : ITokenProvider
         dataExpiracaoJwt = DateTime.UtcNow.AddMinutes(5);
     }
 
-    public IAccessToken GerarTokenDeAcesso(Usuario usuario)
+    public async Task<IAccessToken> GerarTokenDeAcesso(Usuario usuario)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -57,6 +61,9 @@ public class JwtProvider : ITokenProvider
 
         var tokenString = tokenHandler.WriteToken(token);
 
+        var roles = await userManager.GetRolesAsync(usuario);
+        var tipoUsuario = roles.FirstOrDefault() ?? "User";
+
         return new TokenResponse()
         {
             Chave = tokenString,
@@ -65,7 +72,8 @@ public class JwtProvider : ITokenProvider
             {
                 Id = usuario.Id,
                 UserName = usuario.UserName!,
-                Email = usuario.Email!
+                Email = usuario.Email!,
+                TipoUsuario = tipoUsuario
             }
         };
     }

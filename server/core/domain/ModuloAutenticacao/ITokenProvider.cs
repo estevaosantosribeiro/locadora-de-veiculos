@@ -2,5 +2,5 @@
 
 public interface ITokenProvider
 {
-    IAccessToken GerarTokenDeAcesso(Usuario usuario);
+    Task<IAccessToken> GerarTokenDeAcesso(Usuario usuario);
 }

@@ -9,7 +9,9 @@ namespace LocadoraDeVeiculos.Aplicacao.ModuloAutenticacao.Commands.Registrar;
 
 public class RegistrarUsuarioRequestHandler(
     UserManager<Usuario> userManager,
+    RoleManager<Cargo> roleManager,
     ITokenProvider tokenProvider
+
 ) : IRequestHandler<RegistrarUsuarioRequest, Result<TokenResponse>>
 {
     public async Task<Result<TokenResponse>> Handle(
@@ -33,7 +35,19 @@ public class RegistrarUsuarioRequestHandler(
             return Result.Fail(ErrorResults.BadRequestError(erros));
         }
 
-        var tokenAcesso = tokenProvider.GerarTokenDeAcesso(usuario) as TokenResponse;
+        var tipo = request.Tipo;
+
+        var resultado = await roleManager.FindByNameAsync(tipo);
+
+        if (resultado == null)
+        {
+            var cargo = new Cargo { Name = tipo };
+            await roleManager.CreateAsync(cargo);
+        }
+
+        await userManager.AddToRoleAsync(usuario, tipo);
+
+        var tokenAcesso = await tokenProvider.GerarTokenDeAcesso(usuario) as TokenResponse;
 
         if (tokenAcesso == null)
             return Result.Fail(ErrorResults.InternalServerError(new Exception("Falha ao gerar token de acesso")));
