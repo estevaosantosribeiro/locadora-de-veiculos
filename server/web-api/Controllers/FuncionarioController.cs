@@ -1,4 +1,5 @@
 ﻿using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Editar;
+using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Excluir;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Inserir;
 using LocadoraDeVeiculos.WebApi.Extensions;
 using MediatR;
@@ -33,6 +34,17 @@ public class FuncionarioController(IMediator mediator) : ControllerBase
         );
 
         var resultado = await mediator.Send(editarRequest);
+
+        return resultado.ToHttpResponse();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(typeof(ExcluirFuncionarioResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Excluir(Guid id)
+    {
+        var excluirRequest = new ExcluirFuncionarioRequest(id);
+
+        var resultado = await mediator.Send(excluirRequest);
 
         return resultado.ToHttpResponse();
     }
