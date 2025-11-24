@@ -1,6 +1,7 @@
 ﻿using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Editar;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Excluir;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Inserir;
+using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.SelecionarPorId;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.SelecionarTodos;
 using LocadoraDeVeiculos.WebApi.Extensions;
 using MediatR;
@@ -55,6 +56,17 @@ public class FuncionarioController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> SelecionarTodos()
     {
         var resultado = await mediator.Send(new SelecionarFuncionariosRequest());
+
+        return resultado.ToHttpResponse();
+    }
+
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(SelecionarFuncionarioPorIdResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SelecionarPorId(Guid id)
+    {
+        var selecionarPorIdRequest = new SelecionarFuncionarioPorIdRequest(id);
+
+        var resultado = await mediator.Send(selecionarPorIdRequest);
 
         return resultado.ToHttpResponse();
     }
