@@ -8,6 +8,6 @@ public class ValidadorGrupoVeiculo : AbstractValidator<GrupoVeiculo>
     {
         RuleFor(x => x.Nome)
             .NotEmpty().WithMessage("O nome do grupo de veículo é obrigatório")
-            .Length(3, 50).WithMessage("O nome do grupo de veículo deve ter entre 3 e 50 caracteres");
+            .Length(3, 100).WithMessage("O nome do grupo de veículo deve ter entre 3 e 100 caracteres");
     }
 }

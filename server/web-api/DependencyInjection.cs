@@ -9,6 +9,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using FluentValidation;
 using System.Text.Json.Serialization;
+using LocadoraDeVeiculos.Dominio.ModuloGrupoVeiculo;
+using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloGrupoVeiculo;
 
 namespace LocadoraDeVeiculos.WebApi;
 
@@ -165,10 +167,12 @@ public static class DependencyInjection
     public static void ConfigureRepositories(this IServiceCollection services)
     {
         services.AddScoped<IRepositorioFuncionario, RepositorioFuncionarioEmOrm>();
+        services.AddScoped<IRepositorioGrupoVeiculo, RepositorioGrupoVeiculoEmOrm>();
     }
 
     public static void ConfigureFluentValidation(this IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<ValidadorFuncionario>();
+        services.AddValidatorsFromAssemblyContaining<ValidadorGrupoVeiculo>();
     }
 }

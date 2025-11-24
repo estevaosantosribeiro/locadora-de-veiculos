@@ -2,6 +2,7 @@
 using LocadoraDeVeiculos.Dominio.ModuloAutenticacao;
 using LocadoraDeVeiculos.Dominio.ModuloFuncionario;
 using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloFuncionario;
+using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloGrupoVeiculo;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -19,6 +20,7 @@ public class LocadoraDeVeiculosDbContext(DbContextOptions options, ITenantProvid
         //}
 
         modelBuilder.ApplyConfiguration(new MapeadorFuncionarioEmOrm());
+        modelBuilder.ApplyConfiguration(new MapeadorGrupoVeiculoEmOrm());
 
         base.OnModelCreating(modelBuilder);
     }
