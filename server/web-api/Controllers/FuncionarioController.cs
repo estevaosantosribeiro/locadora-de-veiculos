@@ -1,6 +1,7 @@
 ﻿using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Editar;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Excluir;
 using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.Inserir;
+using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.SelecionarTodos;
 using LocadoraDeVeiculos.WebApi.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,6 +46,15 @@ public class FuncionarioController(IMediator mediator) : ControllerBase
         var excluirRequest = new ExcluirFuncionarioRequest(id);
 
         var resultado = await mediator.Send(excluirRequest);
+
+        return resultado.ToHttpResponse();
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(SelecionarFuncionariosResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SelecionarTodos()
+    {
+        var resultado = await mediator.Send(new SelecionarFuncionariosRequest());
 
         return resultado.ToHttpResponse();
     }
