@@ -1,0 +1,3 @@
+﻿namespace LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.Excluir;
+
+public record ExcluirGrupoVeiculoResponse;
