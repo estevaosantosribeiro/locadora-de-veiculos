@@ -1,6 +1,8 @@
-﻿using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.Editar;
+﻿using LocadoraDeVeiculos.Aplicacao.ModuloFuncionario.Commands.SelecionarPorId;
+using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.Editar;
 using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.Excluir;
 using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.Inserir;
+using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.SelecionarPorId;
 using LocadoraDeVeiculos.Aplicacao.ModuloGrupoVeiculo.Commands.SelecionarTodos;
 using LocadoraDeVeiculos.WebApi.Extensions;
 using MediatR;
@@ -53,6 +55,17 @@ public class GrupoVeiculoController(IMediator mediator) : ControllerBase
     public async Task<IActionResult> SelecionarTodos()
     {
         var resultado = await mediator.Send(new SelecionarGrupoVeiculoRequest());
+
+        return resultado.ToHttpResponse();
+    }
+
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(SelecionarGrupoVeiculoPorIdResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SelecionarPorId(Guid id)
+    {
+        var selecionarPorIdRequest = new SelecionarGrupoVeiculoPorIdRequest(id);
+
+        var resultado = await mediator.Send(selecionarPorIdRequest);
 
         return resultado.ToHttpResponse();
     }
