@@ -39,4 +39,31 @@ public sealed class RepositorioFuncionarioEmOrmTests
 
         Assert.AreEqual(funcionario, registroSelecionado);
     }
+
+    [TestMethod]
+    public async Task Deve_Editar_Funcionario_Corretamente()
+    {
+        // Arrange
+        var funcionario = new Funcionario(
+            "Rech Santini Oliveira",
+            500,
+            new DateTime(1850, 4, 5)
+        );
+        await repositorioFuncionario.InserirAsync(funcionario);
+        dbContext.SaveChanges();
+
+        funcionario.Nome = "Tiago Rech da Silva";
+        funcionario.Salario = 4500;
+        funcionario.DataAdmissao = new DateTime(2001, 12, 1);
+
+        // Act
+        var conseguiuEditar = await repositorioFuncionario.EditarAsync(funcionario);
+        dbContext.SaveChanges();
+
+        // Assert
+        var funcionarioSelecionado = await repositorioFuncionario.SelecionarPorIdAsync(funcionario.Id);
+
+        Assert.IsTrue(conseguiuEditar);
+        Assert.AreEqual(funcionario, funcionarioSelecionado);
+    }
 }
