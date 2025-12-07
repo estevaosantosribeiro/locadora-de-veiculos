@@ -90,4 +90,53 @@ public sealed class RepositorioFuncionarioEmOrmTests
         Assert.IsTrue(conseguiuExcluir);
         Assert.IsNull(funcionarioSelecionado);
     }
+
+    [TestMethod]
+    public async Task Deve_Selecionar_Funcionarios_Corretamente()
+    {
+        // Arrange
+        var funcionario = new Funcionario("Sushi Sashimi", 500, new DateTime(1850, 4, 5));
+        var funcionario2 = new Funcionario("Boiola Oliveira", 500, new DateTime(1850, 4, 5));
+        var funcionario3 = new Funcionario("Tiaguismo Inácio", 500, new DateTime(1850, 4, 5));
+
+        await repositorioFuncionario.InserirAsync(funcionario);
+        await repositorioFuncionario.InserirAsync(funcionario2);
+        await repositorioFuncionario.InserirAsync(funcionario3);
+
+        dbContext.SaveChanges();
+
+        List<Funcionario> funcionariosEsperados = [funcionario, funcionario2, funcionario3];
+
+        var funcionariosEsperadosOrdenados = funcionariosEsperados
+            .OrderBy(f => f.Nome)
+            .ToList();
+
+        // Act
+        var funcionariosRecebidos = await repositorioFuncionario
+            .SelecionarTodosAsync();
+
+        var funcionariosRecebidosOrdenados = funcionariosRecebidos
+            .OrderBy(f => f.Nome)
+            .ToList();
+
+        // Assert
+        CollectionAssert.AreEqual(funcionariosRecebidosOrdenados, funcionariosEsperadosOrdenados);
+    }
+
+    [TestMethod]
+    public async Task Deve_Selecionar_Funcionario_Por_Id_Corretamente()
+    {
+        // Arrange
+        var funcionario = new Funcionario("Estevão", 500000, new DateTime(2005, 12, 12));
+
+        await repositorioFuncionario.InserirAsync(funcionario);
+
+        dbContext.SaveChanges();
+
+        // Act
+        var funcionarioSelecionado = await repositorioFuncionario.SelecionarPorIdAsync(funcionario.Id);
+
+        // Assert
+        Assert.AreEqual(funcionarioSelecionado, funcionario);
+    }
 }
