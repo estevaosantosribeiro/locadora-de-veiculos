@@ -2,6 +2,7 @@
 using LocadoraDeVeiculos.Infraestrutura.Orm.Compartilhado;
 using LocadoraDeVeiculos.Infraestrutura.Orm.ModuloFuncionario;
 using LocadoraDeVeiculos.Testes.Integracao.Compartilhado;
+using Microsoft.Identity.Client;
 
 namespace LocadoraDeVeiculos.Testes.Integracao.ModuloFuncionario;
 
@@ -65,5 +66,28 @@ public sealed class RepositorioFuncionarioEmOrmTests
 
         Assert.IsTrue(conseguiuEditar);
         Assert.AreEqual(funcionario, funcionarioSelecionado);
+    }
+
+    [TestMethod]
+    public async Task Deve_Excluir_Funcionario_Corretamente()
+    {
+        // Arrange
+        var funcionario = new Funcionario(
+            "Rech Santini Oliveira",
+            500,
+            new DateTime(1850, 4, 5)
+        );
+        await repositorioFuncionario.InserirAsync(funcionario);
+        dbContext.SaveChanges();
+
+        // Act
+        var conseguiuExcluir = await repositorioFuncionario.ExcluirAsync(funcionario);
+        dbContext.SaveChanges();
+
+        // Assert
+        var funcionarioSelecionado = await repositorioFuncionario.SelecionarPorIdAsync(funcionario.Id);
+
+        Assert.IsTrue(conseguiuExcluir);
+        Assert.IsNull(funcionarioSelecionado);
     }
 }
